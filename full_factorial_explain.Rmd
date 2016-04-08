@@ -1,0 +1,123 @@
+---
+title: "R Code for Finding Full Factorial"
+date: "`r Sys.Date()`"
+author: Jung-Han (Hank) Wang jwang@knights.ucf.edu
+output:
+  rmdformats::readthedown:
+    highlight: kate
+---
+```{r 1,echo=FALSE}
+setwd("H:/Cloud Storage/Dropbox/Life long study/Ph.D/Lecture/2016 Spring/Experimental Design/R project/Experimental Design/Full Factorial")
+options(max.print=16)
+```
+
+```{r knitr_init, echo=FALSE, cache=FALSE,warning=FALSE}
+library(knitr)
+library(rmdformats)
+
+## Global options
+options(max.print="75")
+opts_chunk$set(echo=TRUE,
+	             cache=TRUE,
+               prompt=FALSE,
+               tidy=TRUE,
+               comment=NA,
+               message=FALSE,
+               warning=FALSE)
+opts_knit$set(width=75)
+
+options(max.print=100)
+```
+
+## Get the Tool
+
+Using the code written by Josh. He had suggested to get mgcv packge installed and load package mgcv.
+
+I failed at running the function `uniquecombs` in mgcv package at beginning. But after I updated mgcv package using the code indicated below.
+I was able to get it running on Windows, MAC, and Ubuntu.
+```{r 2, eval=FALSE}
+## Install mgcv package, be default R will install from CRAN
+install.packages("mgcv")
+## Load mgcv package
+library(mgcv)
+```
+
+## Load the data
+
+If the file was put in the same location. It should be fine loading the data using the sample code; otherwise, please check the next section.
+The sample data I used can be found using the link here.
+
+__Sample File Download Link__ <https://goo.gl/OOLrCK>
+
+``` {r 3}
+x <- read.table(file="design.txt", sep="\t", header=TRUE)
+```
+
+A succefully loaded data looks like this:
+```{r 10}
+
+x
+```
+
+If there is problem loading the data. Simply replacing `"design.txt"` with the full path. For example: 
+
+- In MAC: `/Users/experimental_design/....../design.txt`
+- In Windows: `c:/Spring2016/experimental_design/....../design.txt`
+
+## Rename the Column
+
+Using this code.
+
+```{r 4}
+colnames(x) <- LETTERS[1:ncol(x)]
+```
+
+## Generate an Empty Storage
+
+```{r 5}
+unq <- numeric(length(combn(x,log2(nrow(x)),simplify=FALSE)))
+```
+
+## Make all Combinations
+
+```{r 6}
+cmb <- combn(x,log2(nrow(x)),simplify=FALSE)
+```
+
+## Check the Number of Unique Rows
+
+Check how many unique rows in each possible combinations and store the number of unique unique rows to the empty storage `unq`
+
+```{r 7}
+for (i in 1:length(combn(x,log2(nrow(x)),simplify=FALSE))){
+	unq[i] <- nrow(uniquecombs(cmb[i]))
+	}
+unq                 # number of unique rows for each combination
+```
+
+## Get Result
+
+```{r 8}
+full.fact<-cmb[unq==nrow(x)]   # full factorial in . . .
+full.fact
+
+```
+
+## Alphabet only Results
+
+Using the result generated in the previous section. The alphabet representation result can be retrieved using the code:
+
+``` {r 9}
+## I added couple line to display the result
+full.fact.alpha<-sapply(1:length(full.fact),function(x)colnames(full.fact[[x]]))
+## Rotate and change to data frame
+data.frame(t(full.fact.alpha))
+
+```
+
+## Appendix R code
+
+Download the R code (by Josh forked by Hank) <https://goo.gl/ZF64oi>
+
+```{r all-code, ref.label=paste0(c(2:9)), echo=TRUE, eval=FALSE, tidy.opts=list(keep.blank.line=T)}
+```
